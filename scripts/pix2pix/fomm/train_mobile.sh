@@ -4,7 +4,7 @@ python3 train.py --dataroot database/fomm \
   --dataset_mode triplet\
   --log_dir logs/pix2pix/fomm/2_mobile_nocoord_motion_wandb \
   --real_stat_path real_stat/fomm_B.npz \
-  --batch_size 32 \
+  --batch_size 8 \
   --ngf 96 \
   --lambda_recon 10 \
   --nepochs 200 \

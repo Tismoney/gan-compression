@@ -68,7 +68,7 @@ class DenseMotionWithIdentity(DenseMotion):
 def get_only_grids(netG, input):
     """ Function for vizalization grid """
     input = input.clamp(-1, 1)
-    for module in netG.model:
+    for module in netG.module:
         if isinstance(module, DenseMotionWithIdentity):
             identity = module.get_identity(input)
             residual = module.get_grid(input) - identity

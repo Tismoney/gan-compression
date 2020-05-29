@@ -67,12 +67,15 @@ class DenseMotionWithIdentity(DenseMotion):
 @torch.no_grad()
 def get_only_grids(netG, input):
     """ Function for vizalization grid """
-    input_ = input.clamp(-1, 1)
-    for module in netG.modules():
+    input = input.clamp(-1, 1)
+    for module in netG.module.model:
+#         print('-'*10)
+#         print(input.size())
+#         print(module)
         if isinstance(module, DenseMotionWithIdentity):
-            identity = module.get_identity(input_)
-            residual = module.get_grid(input_) - identity
+            identity = module.get_identity(input)
+            residual = module.get_grid(input) - identity
             return residual, identity
         else:
-            input_ = module(input_)
+            input = module(input)
     return input

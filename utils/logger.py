@@ -3,6 +3,8 @@ import time
 
 from tensorboardX import SummaryWriter
 
+import wandb
+
 
 class Logger:
     def __init__(self, opt):
@@ -15,24 +17,8 @@ class Logger:
         self.log_file.flush()
         self.use_wandb = opt.use_wandb
         if self.use_wandb: 
-            import wandb
             wandb.init(config=self.opt, project="fomm-compression")
 #             wandb.watch(model)
-            # manually write opts to wandb
-#             wandb.config.model = opt.model
-#             wandb.config.dataset_mode = opt.dataset_mode
-#             wandb.config.log_dir = opt.log_dir
-#             wandb.config.real_stat_path = opt.real_stat_path
-#             wandb.config.batch_size = opt.batch_size
-#             wandb.config.ngf = opt.ngf
-#             wandb.config.nepochs = opt.nepochs
-#             wandb.config.nepochs_decay = opt.nepochs_decay
-#             wandb.config.save_epoch_freq = opt.save_epoch_freq
-#             wandb.config.save_latest_freq = opt.save_latest_freq
-#             wandb.config.eval_batch_size = opt.eval_batch_size
-#             wandb.config.num_threads = opt.num_threads
-#             wandb.config.use_coord = opt.use_coord
-#             wandb.config.use_motion = opt.use_motion
 
     def plot(self, items, step):
         if len(items) == 0:

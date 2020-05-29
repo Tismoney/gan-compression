@@ -8,8 +8,9 @@ import os
 import re
 
 import numpy as np
-import torch
 from PIL import Image
+
+import torch
 from torch import nn
 from torch.functional import F
 import cv2
@@ -245,13 +246,13 @@ def find_class_in_module(target_cls_name, module):
     return cls
 
 
-def visualizate_grid(identity, residual, img_size=(256, 256)):
+def visualize_grid(identity, residual, img_size=(256, 256)):
     '''Visualize dense motion grid. 
     
-    Returns an RGB-image (`np.array`) resized to `img_size`
+    Returns an RGB-image (`torch.Tensor`) resized to `img_size`
     '''
-    X, Y = identity.squeeze(0).permute(2, 0, 1)
-    U, V = residual.squeeze(0).permute(2, 0, 1)
+    X, Y = identity.squeeze(0).permute(2, 0, 1).detach().cpu().numpy()
+    U, V = residual.squeeze(0).permute(2, 0, 1).detach().cpu().numpy()
     M = np.hypot(U, V)
     # dense motion vector field plot
     fig, ax = plt.subplots(figsize=(10, 10))
@@ -267,4 +268,5 @@ def visualizate_grid(identity, residual, img_size=(256, 256)):
     image = np.frombuffer(canvas.tostring_rgb(), dtype='uint8')
     image = image.reshape(height, width, 3)
     image = cv2.resize(image, img_size)
+    image = torch.from_numpy(image).float().to(identity.device).permute(2, 0, 1)
     return image

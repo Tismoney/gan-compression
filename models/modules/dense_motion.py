@@ -72,8 +72,13 @@ def get_only_grids(netG, input):
 #         print('-'*10)
 #         print(input.size())
 #         print(module)
-        if isinstance(module, DenseMotionWithIdentity):
-            identity = module.get_identity(input)
+        if isinstance(module, DenseMotion):
+            h, w = 64, 64
+            x_coords = 2.0 * torch.arange(h).unsqueeze(0).expand(h, w) / (h - 1.0) - 1.0
+            y_coords = 2.0 * torch.arange(w).unsqueeze(1).expand(h, w) / (w - 1.0) - 1.0
+            identity = torch.stack((x_coords, y_coords), dim=0).permute(1, 2, 0).unsqueeze(0)
+#             identity = module.get_identity(input)
+
             residual = module.get_grid(input) - identity
             return residual, identity
         else:

@@ -38,12 +38,13 @@ class BaseOptions:
                             help='network initialization [normal | xavier | kaiming | orthogonal]')
         parser.add_argument('--init_gain', type=float, default=0.02,
                             help='scaling factor for normal, xavier and orthogonal.')
+        # new parameters
         parser.add_argument('--use_coord', dest='use_coord', action='store_true',
                             help='add CoordConv Layers instead Convolution layer or not')
         parser.add_argument('--use_motion', dest='use_motion', action='store_true',
                             help='add Dense Motion Layer into net')
         parser.add_argument('--use_motion_tanh', dest='motion_tanh', action='store_true',
-                            help='add Dense Motion Layer into net')
+                            help='whether to use tanh activation in the DenseMotion layer')
         parser.add_argument('--use_wandb', dest='use_wandb', action='store_true',
                             help='use weights&biases as a visualization tool')
         parser.set_defaults(use_coord=False, use_motion=False, motion_tanh=False, use_wandb=False)

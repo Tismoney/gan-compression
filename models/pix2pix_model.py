@@ -179,14 +179,21 @@ class Pix2PixModel(BaseModel):
                 names.append(name)
                 if cnt < 10:
                     if self.opt.input_nc == 6:
-                        identity, residual = get_only_grids(self.netG, self.real_A[j][None,...])
-                        M = util.visualize_grid(identity, residual, img_size=(256, 256))  # dense motion field
                         A, D = torch.split(self.real_A[j], 3, dim=0)
-                        sample = [A, M, D, self.real_B[j], self.fake_B[j]]
+                        sample = [A, D, self.real_B[j], self.fake_B[j]]
                         sample_im = util.tensor2im(torch.cat(sample, dim=2))
+                        # save 
                         util.save_image(sample_im, os.path.join(save_dir, 'sample', '%s.png' % name), create_dir=True)
+                        if self.opt.use_motion:
+                            # dense motion field
+                            identity, residual = get_only_grids(self.netG, self.real_A[j][None,...])
+                            field_img, hist_img = util.visualize_grid(
+                                identity, residual, 
+                                wandb=wandb, i=i, 
+                                step=step, img_size=None
+                            )
                         if self.opt.use_wandb: 
-                            wandb.log({f'sample_{i}': [wandb.Image(sample_im)]}, step=step)
+                            wandb.log({f'sample_{step}/{name}': [wandb.Image(sample_im)]}, step=step)
                     else:
                         input_im = util.tensor2im(self.real_A[j])
                         real_im = util.tensor2im(self.real_B[j])

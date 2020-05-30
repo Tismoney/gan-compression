@@ -246,7 +246,17 @@ def find_class_in_module(target_cls_name, module):
     return cls
 
 
-def visualize_grid(identity, residual, img_size=(256, 256)):
+def plt_to_img(fig, canvas, img_size):
+    # return as an image
+    width, height = fig.get_size_inches() * fig.get_dpi()
+    width, height = int(width), int(height)
+    image = np.frombuffer(canvas.tostring_rgb(), dtype='uint8')
+    image = image.reshape(height, width, 3)
+    if img_size is not None:
+        image = cv2.resize(image, img_size)
+    return image
+
+def visualize_grid(identity, residual, wandb, i, step, img_size=None):
     '''Visualize dense motion grid. 
     
     Returns an RGB-image (`torch.Tensor`) resized to `img_size`
@@ -260,13 +270,22 @@ def visualize_grid(identity, residual, img_size=(256, 256)):
     ax = fig.gca()
     ax.quiver(X, Y, U, V, M, pivot='tip', units='width', cmap=plt.get_cmap('Blues') )
     ax.axis('off')
-    # plt.show();
     canvas.draw()  # draw the canvas, cache the renderer
     # return as an image
-    width, height = fig.get_size_inches() * fig.get_dpi()
-    width, height = int(width), int(height)
-    image = np.frombuffer(canvas.tostring_rgb(), dtype='uint8')
-    image = image.reshape(height, width, 3)
-    image = cv2.resize(image, img_size)
-    image = torch.from_numpy(image).float().to(identity.device).permute(2, 0, 1)
-    return image
+#     vector_field = plt_to_img(fig, canvas, img_size)
+    wandb.log({f'sample_{i}_field': wandb.Image(ax)}, step=step)
+#     vector_field = torch.from_numpy(vector_field).float().to(identity.device).permute(2, 0, 1)
+    # residual weights histogram plot
+    fig, ax = plt.subplots(figsize=(10, 10))
+    canvas = FigureCanvas(fig)
+    ax = fig.gca()
+    ax.hist(U.reshape(-1), label='x', bins=50, alpha=0.5)
+    ax.hist(V.reshape(-1), label='y', bins=50, alpha=0.5)
+    ax.legend(fontsize=15)
+    ax.grid(':')
+    canvas.draw()  # draw the canvas, cache the renderer
+#     hist_img = plt_to_img(fig, canvas, img_size)
+    wandb.log({f'sample_{i}_hist': wandb.Image(ax)}, step=step)
+#     hist_img = torch.from_numpy(hist_img).float().to(identity.device).permute(2, 0, 1)
+    return vector_field, hist_img
+

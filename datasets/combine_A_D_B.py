@@ -4,6 +4,9 @@ import os
 import cv2
 import numpy as np
 
+from tqdm import tqdm
+
+
 parser = argparse.ArgumentParser('create image triplet')
 parser.add_argument('--fold_A', dest='fold_A', help='input directory for image A', type=str,
                     default='./database/fomm/source')
@@ -36,7 +39,7 @@ for sp in splits:
     if not os.path.isdir(img_fold_ADB):
         os.makedirs(img_fold_ADB)
     print('split = %s, number of images = %d' % (sp, num_imgs))
-    for n in tqdm(range(num_imgs), decs=sp):
+    for n in tqdm(range(num_imgs)):
         name_A = img_list[n]
         path_A = os.path.join(img_fold_A, name_A)
         if args.use_ADB:

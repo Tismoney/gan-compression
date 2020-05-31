@@ -186,7 +186,7 @@ class Pix2PixModel(BaseModel):
                         util.save_image(sample_im, os.path.join(save_dir, 'sample', '%s.png' % name), create_dir=True)
                         if self.opt.use_motion:
                             # dense motion field
-                            identity, residual = get_only_grids(self.netG, self.real_A[j][None,...])
+                            residual, identity = get_only_grids(self.netG, self.real_A[j][None,...])
                             util.visualize_grid(
                                 identity, residual, 
                                 wandb=wandb, name=name, 

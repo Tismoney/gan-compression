@@ -187,9 +187,9 @@ class Pix2PixModel(BaseModel):
                         if self.opt.use_motion:
                             # dense motion field
                             identity, residual = get_only_grids(self.netG, self.real_A[j][None,...])
-                            field_img, hist_img = util.visualize_grid(
+                            util.visualize_grid(
                                 identity, residual, 
-                                wandb=wandb, i=i, 
+                                wandb=wandb, name=name, 
                                 step=step, img_size=None
                             )
                         if self.opt.use_wandb: 

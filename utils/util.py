@@ -256,36 +256,22 @@ def plt_to_img(fig, canvas, img_size):
         image = cv2.resize(image, img_size)
     return image
 
-def visualize_grid(identity, residual, wandb, i, step, img_size=None):
-    '''Visualize dense motion grid. 
-    
-    Returns an RGB-image (`torch.Tensor`) resized to `img_size`
+def visualize_grid(identity, residual, wandb, name, step, img_size=None):
     '''
+    Visualize dense motion grid and send it to w&b.
+    '''
+    
     X, Y = identity.squeeze(0).permute(2, 0, 1).detach().cpu().numpy()
     U, V = residual.squeeze(0).permute(2, 0, 1).detach().cpu().numpy()
     M = np.hypot(U, V)
     # dense motion vector field plot
-    fig, ax = plt.subplots(figsize=(10, 10))
-    canvas = FigureCanvas(fig)
-    ax = fig.gca()
-    ax.quiver(X, Y, U, V, M, pivot='tip', units='width', cmap=plt.get_cmap('Blues') )
-    ax.axis('off')
-    canvas.draw()  # draw the canvas, cache the renderer
-    # return as an image
-#     vector_field = plt_to_img(fig, canvas, img_size)
-    wandb.log({f'sample_{i}_field': wandb.Image(ax)}, step=step)
-#     vector_field = torch.from_numpy(vector_field).float().to(identity.device).permute(2, 0, 1)
+    fig, ax = plt.subplots(figsize=(20, 10), nrows=1, ncols=2)
+    ax[0].quiver(X, Y, U, V, M, pivot='tip', units='width', cmap=plt.get_cmap('Blues'))
+    ax[0].axis('off')
     # residual weights histogram plot
-    fig, ax = plt.subplots(figsize=(10, 10))
-    canvas = FigureCanvas(fig)
-    ax = fig.gca()
-    ax.hist(U.reshape(-1), label='x', bins=50, alpha=0.5)
-    ax.hist(V.reshape(-1), label='y', bins=50, alpha=0.5)
-    ax.legend(fontsize=15)
-    ax.grid(':')
-    canvas.draw()  # draw the canvas, cache the renderer
-#     hist_img = plt_to_img(fig, canvas, img_size)
-    wandb.log({f'sample_{i}_hist': wandb.Image(ax)}, step=step)
-#     hist_img = torch.from_numpy(hist_img).float().to(identity.device).permute(2, 0, 1)
-    return vector_field, hist_img
+    ax[1].hist(U.reshape(-1), label='x', bins=50, alpha=0.3)
+    ax[1].hist(V.reshape(-1), label='y', bins=50, alpha=0.3)
+    ax[1].legend(fontsize=15)
+    ax[1].grid(':')
+    wandb.log({f'sample_{step}/{name}_vis': wandb.Image(fig)}, step=step)
 

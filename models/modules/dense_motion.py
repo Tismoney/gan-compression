@@ -24,6 +24,7 @@ class DenseMotion(nn.Module):
         '''
         grid = self.grid_map(x)
         grid = grid.permute(0, 2, 3, 1)
+        grid = grid.flip([1])  # to be researched
         return grid
 
     def forward(self, x):
@@ -60,6 +61,7 @@ class DenseMotionWithIdentity(DenseMotion):
         '''
         grid = self.grid_map(x)
         grid = grid.permute(0, 2, 3, 1)
+        grid = grid.flip([1])  # to be researched
         identity = self.get_identity(x)
         return identity + grid
 

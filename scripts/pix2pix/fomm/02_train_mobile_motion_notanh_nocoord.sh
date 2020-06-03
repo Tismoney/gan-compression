@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-python3 train.py --dataroot database/fomm_62k \
+python3 train.py --dataroot database/fomm_5k \
   --model pix2pix \
   --dataset_mode triplet\
-  --log_dir logs/pix2pix/fomm/02_mobile_motion_notanh_nocoord_62k \
+  --log_dir logs/pix2pix/fomm/test_mobile_motion_notanh_nocoord_5k \
   --real_stat_path real_stat/fomm_B.npz \
   --batch_size 8 \
   --ngf 96 \

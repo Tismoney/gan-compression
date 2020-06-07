@@ -12,6 +12,8 @@ from utils import util
 from utils.weight_transfer import load_pretrained_weight
 from .base_resnet_distiller import BaseResnetDistiller
 
+import wandb
+
 
 class ResnetDistiller(BaseResnetDistiller):
     @staticmethod
@@ -52,7 +54,7 @@ class ResnetDistiller(BaseResnetDistiller):
         return sum(losses)
 
     def backward_G(self):
-        if self.opt.dataset_mode == 'aligned':
+        if self.opt.dataset_mode == 'aligned' or self.opt.dataset_mode == 'triplet':
             self.loss_G_recon = self.criterionRecon(self.Sfake_B, self.real_B) * self.opt.lambda_recon
             fake = torch.cat((self.real_A, self.Sfake_B), 1)
         else:
@@ -95,7 +97,7 @@ class ResnetDistiller(BaseResnetDistiller):
         fakes, names = [], []
         cnt = 0
         for i, data_i in enumerate(tqdm(self.eval_dataloader)):
-            if self.opt.dataset_mode == 'aligned':
+            if self.opt.dataset_mode in ['aligned', 'triplet']:
                 self.set_input(data_i)
             else:
                 self.set_single_input(data_i)
@@ -106,12 +108,29 @@ class ResnetDistiller(BaseResnetDistiller):
                 name = os.path.splitext(short_path)[0]
                 names.append(name)
                 if cnt < 10:
-                    input_im = util.tensor2im(self.real_A[j])
-                    Sfake_im = util.tensor2im(self.Sfake_B[j])
-                    Tfake_im = util.tensor2im(self.Tfake_B[j])
-                    util.save_image(input_im, os.path.join(save_dir, 'input', '%s.png') % name, create_dir=True)
-                    util.save_image(Sfake_im, os.path.join(save_dir, 'Sfake', '%s.png' % name), create_dir=True)
-                    util.save_image(Tfake_im, os.path.join(save_dir, 'Tfake', '%s.png' % name), create_dir=True)
+                    if self.opt.input_nc == 6:
+                        A, D = torch.split(self.real_A[j], 3, dim=0)
+                        sample = [A, D, self.real_B[j], self.Tfake_B[j], self.Sfake_B[j]]
+                        sample_im = util.tensor2im(torch.cat(sample, dim=2))
+                        # save 
+                        util.save_image(sample_im, os.path.join(save_dir, 'sample', '%s.png' % name), create_dir=True)
+#                         if self.opt.use_motion:
+#                             # dense motion field
+#                             residual, identity = get_only_grids(self.netG, self.real_A[j][None,...])
+#                             util.visualize_grid(
+#                                 identity, residual, 
+#                                 wandb=wandb, name=name, 
+#                                 step=step, img_size=None
+#                             )
+                        if self.opt.use_wandb: 
+                            wandb.log({f'sample_{step}/{name}': [wandb.Image(sample_im)]}, step=step)
+                    else:
+                        input_im = util.tensor2im(self.real_A[j])
+                        Sfake_im = util.tensor2im(self.Sfake_B[j])
+                        Tfake_im = util.tensor2im(self.Tfake_B[j])
+                        util.save_image(input_im, os.path.join(save_dir, 'input', '%s.png') % name, create_dir=True)
+                        util.save_image(Sfake_im, os.path.join(save_dir, 'Sfake', '%s.png' % name), create_dir=True)
+                        util.save_image(Tfake_im, os.path.join(save_dir, 'Tfake', '%s.png' % name), create_dir=True)
                     if self.opt.dataset_mode == 'aligned':
                         real_im = util.tensor2im(self.real_B[j])
                         util.save_image(real_im, os.path.join(save_dir, 'real', '%s.png' % name), create_dir=True)

@@ -124,12 +124,12 @@ class MobileResnetGenerator(BaseNetwork):
 
     def forward(self, input):
         """Standard forward"""
-        # input = input.clamp(-1, 1)
-        # for i, module in enumerate(self.model):
-        #     print(i, input.size())
-        #     print(module)
-        #     if isinstance(module, nn.Conv2d):
-        #         print(module.stride)
-        #     input = module(input)
-        # return input
+#         input = input.clamp(-1, 1)
+#         for i, module in enumerate(self.model):
+#             print(i, input.size())
+#             print(module)
+#             if isinstance(module, nn.Conv2d):
+#                 print(module.stride)
+#             input = module(input)
+#         return input
         return self.model(input)

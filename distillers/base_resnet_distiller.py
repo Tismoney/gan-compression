@@ -81,6 +81,9 @@ class BaseResnetDistiller(BaseModel):
         elif opt.dataset_mode == 'unaligned':
             self.netD = networks.define_D(opt.output_nc, opt.ndf, opt.netD,
                                           opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, self.gpu_ids)
+        elif opt.dataset_mode == 'triplet':
+            self.netD = networks.define_D(opt.input_nc + opt.output_nc, opt.ndf, opt.netD,
+                                          opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, self.gpu_ids)
         else:
             raise NotImplementedError('Unknown dataset mode [%s]!!!' % opt.dataset_mode)
 
@@ -172,7 +175,7 @@ class BaseResnetDistiller(BaseModel):
         raise NotImplementedError
 
     def backward_D(self):
-        if self.opt.dataset_mode == 'aligned':
+        if self.opt.dataset_mode == 'aligned' or self.opt.dataset_mode == 'triplet':
             fake = torch.cat((self.real_A, self.Sfake_B), 1).detach()
             real = torch.cat((self.real_A, self.real_B), 1).detach()
         else:
